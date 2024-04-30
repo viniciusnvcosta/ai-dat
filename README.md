@@ -1,9 +1,11 @@
-# cookiecutter-fastapi
+# ai-dat
 
-In order to create a template to FastAPI projects. :rocket:
+***AI Deployment as Template***
+
+A quality template to deploy containerized AI projects. 🏗️
 
 ## Important
-To use this project you don't need fork it. Just run cookiecutter CLI and voilà!
+This project is thoroughly based on `arturhenrique`'s [cookiecutter-fastapi](https://github.com/arthurhenrique/cookiecutter-fastapi) and `mateuscardosogs`'s [athena-boilerplate](https://github.com/mateuscardosogs/athena-boilerplate), best regards for their contributions.
 
 ## Cookiecutter
 
@@ -15,12 +17,10 @@ Cookiecutter is a CLI tool (Command Line Interface) to create an application boi
 pip install cookiecutter
 ```
 
-### How can I generate a FastAPI project?
+### How can I generate a `ai-dat` project?
 
 ```bash
-cookiecutter gh:arthurhenrique/cookiecutter-fastapi
+cookiecutter gh:viniciusnvcosta/ai-dat
 ```
 
-### Hands On
-
-![Example](./docs/example/cookiecutter-fastapi-cli.svg)
+<!-- ### Hands On -->
