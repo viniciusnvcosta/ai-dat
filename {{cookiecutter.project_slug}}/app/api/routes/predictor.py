@@ -3,7 +3,7 @@ import json
 import joblib
 from fastapi import APIRouter, HTTPException
 
-from core.config import INPUT_EXAMPLE
+from core.config import settings
 from services.predict import MachineLearningModelHandlerScore as model
 from models.prediction import (
     HealthResponse,
@@ -48,7 +48,7 @@ async def health():
     is_health = False
     try:
         test_input = MachineLearningDataInput(
-            **json.loads(open(INPUT_EXAMPLE, "r").read())
+            **json.loads(open(settings.INPUT_EXAMPLE, "r").read())
         )
         test_point = test_input.get_np_array()
         get_prediction(test_point)
