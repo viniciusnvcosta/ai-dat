@@ -2,13 +2,14 @@ import logging
 import os
 import sys
 from enum import Enum
-
+from dotenv import load_dotenv
 from loguru import logger
 from core.logging import InterceptHandler
 from pydantic_settings import BaseSettings
 from starlette.config import Config
 from starlette.datastructures import Secret
 
+load_dotenv()
 current_file_dir = os.path.dirname(os.path.realpath(__file__))
 env_path = os.path.join(current_file_dir, "..", "..", ".env")
 config = Config(env_path)
@@ -32,7 +33,7 @@ class AppSettings(BaseSettings):
 
 
 class CryptSettings(BaseSettings):
-    SECRET_KEY: Secret = config("SECRET_KEY", cast=Secret, default="")
+    SECRET_KEY: str = config("SECRET_KEY", default="")
     ALGORITHM: str = config("ALGORITHM", default="HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = config("ACCESS_TOKEN_EXPIRE_MINUTES", default=30)
     REFRESH_TOKEN_EXPIRE_DAYS: int = config("REFRESH_TOKEN_EXPIRE_DAYS", default=7)
@@ -47,29 +48,11 @@ class EnvironmentOption(Enum):
 class EnvironmentSettings(BaseSettings):
     # ENVIRONMENT: EnvironmentOption = config("ENVIRONMENT", default="local")
     MODEL_PATH: str = config("MODEL_PATH", default="./ml/model/")
-    MODEL_NAME: str = config("MODEL_NAME", default="model.pkl")
+    MODEL_NAME: str = config("MODEL_NAME", default="model.pt")
     INPUT_EXAMPLE: str = config(
-        "INPUT_EXAMPLE", default="./ml/model/examples/example.json"
+        "INPUT_EXAMPLE", default="./ml/model/examples/example.jpg"
     )
-
-
-class GPTSettings(BaseSettings):
-    GPT_API_KEY: str = config("GPT_API_KEY", default="")
-    GPT_MODEL: str = config("GPT_MODEL", default="gpt-3.5-turbo-16k")
-    GPT_TEMPERATURE: float = config("GPT_TEMPERATURE", default=0)
-    GPT_PDF_DEFAULT_QUESTION: str = config("GPT_PDF_DEFAULT_QUESTION", default="")
-    GPT_PDF_PAGE_PARTS: int = config("GPT_PDF_PAGE_PARTS", default=5)
-    GPT_STATUS_COLOR_QUESTION: str = config("GPT_STATUS_COLOR_QUESTION", default="")
-    GPT_STATUS_COLOR_INDEX_COMPARE_TABLE_PATH: str = config(
-        "GPT_STATUS_COLOR_INDEX_COMPARE_TABLE_PATH", default=""
-    )
-    GPT_STATUS_COLOR_SINOUNS_JSON_PATH: str = config(
-        "GPT_STATUS_COLOR_SINOUNS_JSON_PATH", default=""
-    )
-    GPT_STATUS_COLOR_DICT_BASE_JSON_PATH: str = config(
-        "GPT_STATUS_COLOR_DICT_BASE_JSON_PATH", default=""
-    )
-    GPT_GROUP_COLORS_JSON_PATH: str = config("GPT_GROUP_COLORS_JSON_PATH", default="")
+    IMG_SIZE: int = config("IMG_SIZE", default=640)
 
 
 class S3ConnectionSettings(BaseSettings):
@@ -90,7 +73,6 @@ class Settings(
     AppSettings,
     CryptSettings,
     EnvironmentSettings,
-    GPTSettings,
     S3ConnectionSettings,
 ):
     pass

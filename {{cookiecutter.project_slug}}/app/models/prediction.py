@@ -1,10 +1,22 @@
-import numpy as np
-
 from pydantic import BaseModel
+from typing import List
+
+
+class DetectionResult(BaseModel):
+    bbox: List[int]
+    class_name: str
+    detection_score: float
+
+
+class ClassificationResult(BaseModel):
+    class_name: int
+    classification_score: float
 
 
 class MachineLearningResponse(BaseModel):
-    prediction: float
+    result: List[
+        DetectionResult
+    ]  # Change to List[ClassificationResult] if classification task or List[NewTask] for a new task
 
 
 class HealthResponse(BaseModel):
@@ -12,21 +24,4 @@ class HealthResponse(BaseModel):
 
 
 class MachineLearningDataInput(BaseModel):
-    feature1: float
-    feature2: float
-    feature3: float
-    feature4: float
-    feature5: float
-
-    def get_np_array(self):
-        return np.array(
-            [
-                [
-                    self.feature1,
-                    self.feature2,
-                    self.feature3,
-                    self.feature4,
-                    self.feature5,
-                ]
-            ]
-        )
+    image_file: str

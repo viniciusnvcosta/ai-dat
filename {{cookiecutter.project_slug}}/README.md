@@ -1,6 +1,6 @@
-# {{cookiecutter.project_name}}
+# pickcells-cito-detector-ia
 
-{{cookiecutter.project_short_description}}
+Repositório da IA de detecção de citologia no padrão PCP
 
 ## Development Requirements
 
@@ -73,7 +73,8 @@ Application parts are:
     |
     ├── ml               - modelling source code for use in this project.
     │   ├── __init__.py  - makes ml a Python module
-    │   ├── pipeline.py  - scripts to orchestrate the whole pipeline
+    │   ├── train.py  - script to train models
+    │   ├── eval.py  - script to make predictions and evaluate models
     │   │
     │   ├── data         - scripts to download or generate data
     │   │   └── make_dataset.py
@@ -81,9 +82,10 @@ Application parts are:
     │   ├── features     - scripts to turn raw data into features for modeling
     │   │   └── build_features.py
     │   │
-    │   └── model        - scripts to train models and make predictions
-    │       ├── predict_model.py
-    │       └── train_model.py
+    │   └── model        - model binaries and inference pipeline logic
+    │       ├── image_processor.py
+    │       ├── model_runner.py
+    │       └── model_scorer.py
     │
     └── tests            - pytest
 
@@ -129,5 +131,3 @@ Deploying inference service to AWS Lambda
 ## Add the correct type hinting when completed
 
 `aws cloudformation delete-stack --stack-name <STACK_NAME_ON_CREATION>`
-
-Made by <https://github.com/arthurhenrique/cookiecutter-fastapi/graphs/contributors> with ❤️

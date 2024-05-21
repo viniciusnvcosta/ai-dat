@@ -1,6 +1,9 @@
 # Cookiecutter specific
 data/*
 
+# models binaries
+ml/models/*.[h5, pt, pkl]
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -90,3 +93,7 @@ target/
 
 # Mypy cache
 .mypy_cache/
+
+# Models
+*.h5
+*.pt
