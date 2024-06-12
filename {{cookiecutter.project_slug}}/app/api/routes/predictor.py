@@ -33,26 +33,38 @@ async def predict(data_input: MachineLearningDataInput):
         data_point = data_input.get_np_array()
         prediction = get_prediction(data_point)
 
+        # * Define the response object outputs here (as a dictionary)
+        result = {"prediction": prediction}
+        return MachineLearningResponse(prediction=result)
+    # Handling Exceptions
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON format")
+    except ValueError as err:
+        raise HTTPException(status_code=422, detail=f"Unprocessable Entity: {err}")
     except Exception as err:
-        raise HTTPException(status_code=500, detail=f"Exception: {err}")
-
-    return MachineLearningResponse(prediction=prediction)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {err}")
 
 
+# Endpoint for handling GET requests to a 'health'-like route
 @router.get(
-    "/health",
-    response_model=HealthResponse,
-    name="health:get-data",
+    "/test",
+    response_model=MachineLearningResponse,
+    name="test:get-data",
 )
-async def health():
+async def test():
     is_health = False
     try:
         test_input = MachineLearningDataInput(
             **json.loads(open(settings.INPUT_EXAMPLE, "r").read())
         )
         test_point = test_input.get_np_array()
-        get_prediction(test_point)
+        prediction = get_prediction(test_point)
+
         is_health = True
-        return HealthResponse(status=is_health)
+        result = {
+            "predicted_label": prediction,
+            "is_healthy": is_health,
+        }
+        return HealthResponse(status=result)
     except Exception:
         raise HTTPException(status_code=404, detail="Unhealthy")

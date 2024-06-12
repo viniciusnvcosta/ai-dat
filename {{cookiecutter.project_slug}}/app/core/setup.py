@@ -3,7 +3,7 @@ from typing import Any, Union
 from fastapi import FastAPI
 
 from api.routes.api import router as api_router
-from core.events import create_start_app_handler
+from core.events import create_start_app_handler, create_stop_app_handler
 
 # from core.config import API_PREFIX, DEBUG, PROJECT_NAME, VERSION
 from core.config import AppSettings, CryptSettings, GPTSettings
@@ -56,18 +56,19 @@ def create_application(
             **kwargs,
         }
 
-    # --- app creation ---
-    application = FastAPI(**kwargs)
-    application.include_router(api_router, prefix=settings.API_PREFIX)
-    pre_load = False
-    if pre_load:
-        application.add_event_handler("startup", create_start_app_handler(application))
-
-    # TODO --- after app creation ---
+    # TODO --- before app creation ---
     if isinstance(settings, CryptSettings):
         pass
 
     if isinstance(settings, GPTSettings):
         pass
+
+    # --- app creation ---
+    application = FastAPI(**kwargs)
+    application.include_router(api_router, prefix=settings.API_PREFIX)
+    pre_load = True
+    if pre_load:
+        application.add_event_handler("startup", create_start_app_handler(application))
+        application.add_event_handler("shutdown", create_stop_app_handler(application))
 
     return application
