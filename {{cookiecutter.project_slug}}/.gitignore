@@ -1,6 +1,11 @@
 # Cookiecutter specific
 data/*
 
+# Model binary files
+ml/model/*
+# Save examples folder
+!ml/model/examples
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

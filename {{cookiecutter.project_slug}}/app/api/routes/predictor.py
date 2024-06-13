@@ -1,41 +1,44 @@
 import json
 
-import joblib
-from fastapi import APIRouter, HTTPException
-
 from core.config import settings
-from services.predict import MachineLearningModelHandlerScore as model
+from fastapi import APIRouter, HTTPException
 from models.prediction import (
-    HealthResponse,
-    MachineLearningResponse,
     MachineLearningDataInput,
+    MachineLearningResponse,
 )
+from PIL import Image
+from services.predict import MachineLearningModelHandlerScore as model
+from services.utils import Utils
 
-router = APIRouter()
+router = APIRouter()  # Creating an APIRouter instance
 
 
-## Change this portion for other types of models
-## Add the correct type hinting when completed
+# Function to get predictions using the ML model
 def get_prediction(data_point):
-    return model.predict(data_point, load_wrapper=joblib.load, method="predict")
+    return model.predict(data_point)
 
 
+# Endpoint for handling POST requests to '/predict' route
 @router.post(
     "/predict",
     response_model=MachineLearningResponse,
     name="predict:get-data",
 )
-async def predict(data_input: MachineLearningDataInput):
+async def predict(text_input: MachineLearningDataInput):
 
-    if not data_input:
-        raise HTTPException(status_code=404, detail="'data_input' argument invalid!")
+    if not text_input:
+        raise HTTPException(status_code=404, detail="'text_input' argument invalid!")
     try:
-        data_point = data_input.get_np_array()
-        prediction = get_prediction(data_point)
+        text_point = text_input.get_prompt()
+        prediction = get_prediction(text_point)
 
-        # * Define the response object outputs here (as a dictionary)
-        result = {"prediction": prediction}
-        return MachineLearningResponse(prediction=result)
+        # CIDs = Utils.extract_CID(prediction)
+
+        result = {
+            "reponse_text": prediction,
+            # "cid_groups": CIDs,
+        }
+        return MachineLearningResponse(result=result)
     # Handling Exceptions
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON format")
@@ -54,17 +57,21 @@ async def predict(data_input: MachineLearningDataInput):
 async def test():
     is_health = False
     try:
-        test_input = MachineLearningDataInput(
+        text_input = MachineLearningDataInput(
             **json.loads(open(settings.INPUT_EXAMPLE, "r").read())
         )
-        test_point = test_input.get_np_array()
-        prediction = get_prediction(test_point)
+        text_point = text_input.get_prompt()
+        prediction = get_prediction(text_point)
+
+        # CIDs = Utils.extract_CID(prediction)
 
         is_health = True
         result = {
-            "predicted_label": prediction,
+            "reponse_text": prediction,
+            # "cid_groups": CIDs,
             "is_healthy": is_health,
         }
-        return HealthResponse(status=result)
-    except Exception:
-        raise HTTPException(status_code=404, detail="Unhealthy")
+        return MachineLearningResponse(result=result)
+    # Returning unhealth status
+    except Exception as err:
+        raise HTTPException(status_code=404, detail=f"Unhealthy: {err}")

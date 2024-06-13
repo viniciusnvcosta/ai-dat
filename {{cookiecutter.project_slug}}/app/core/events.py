@@ -1,9 +1,9 @@
 from typing import Callable
-
-from fastapi import FastAPI
+import PeftModel
 from loguru import logger
 
-# * import any model loading code here as a wrapper function
+from fastapi import FastAPI
+
 
 # def model_settings():
 #     """
@@ -19,8 +19,7 @@ def preload_model():
     """
     from services.predict import MachineLearningModelHandlerScore
 
-    # * add load function here
-    MachineLearningModelHandlerScore.get_model(load_wrapper=any())
+    MachineLearningModelHandlerScore.get_model(load_wrapper=PeftModel.from_pretrained)
 
 
 def create_start_app_handler(app: FastAPI) -> Callable:

@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "{{cookiecutter.project_name}}"
-version = "{{cookiecutter.version}}"
-description = "{{cookiecutter.project_short_description}}"
-authors = ["{{cookiecutter.full_name}} <{{cookiecutter.email}}>"]
+name = "pickcells-mcids-ia"
+version = "0.1.0"
+description = "Repositório da IA de mcids estruturada no padrão PCP"
+authors = ["Pickcells <suporte@pickcells.bio>"]
 package-mode = false
 
 [tool.poetry.dependencies]
@@ -11,11 +11,11 @@ fastapi = "^0.103.2"
 uvicorn = "0.23.2"
 pydantic = "^2.4.1"
 pydantic-settings = "^2.0.3"
-requests = "^2.22.0"
+starlette = "^0.27.0"
+requests = "^2.26.0"
 loguru = "^0.7.0"
 joblib = "^1.2.0"
 scikit-learn = "^1.2.0"
-magnum = "^0.17.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2"
@@ -26,6 +26,10 @@ pylint = "^3.0.0"
 
 [tool.poetry.group.aws]
 optional = true
+
+[tool.poetry.group.aws.dependencies]
+mangum = "^0.17.0"
+boto3 = "^1.20.0"
 
 [build-system]
 requires = ["poetry>=0.12"]

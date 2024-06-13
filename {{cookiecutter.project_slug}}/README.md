@@ -1,6 +1,6 @@
-# {{cookiecutter.project_name}}
+# pickcells-mcids-ia
 
-{{cookiecutter.project_short_description}}
+Repositório da IA de mcids estruturada no padrão PCP
 
 ## Development Requirements
 
@@ -53,39 +53,52 @@ Files related to application are in the `app` or `tests` directories.
 Application parts are:
 
     app
-    |
-    | # Fast-API stuff
+    │
+    │ # Fast-API stuff
     ├── api                 - web related stuff.
     │   └── routes          - web routes.
     ├── core                - application configuration, startup events, logging.
     ├── models              - pydantic models for this application.
     ├── services            - logic that is not just crud related.
-    ├── main-aws-lambda.py  - [Optional] FastAPI application for AWS Lambda creation and configuration.
-    └── main.py             - FastAPI application creation and configuration.
-    |
-    | # ML stuff
+    │   ├── __init__.py     - makes services a Python module
+    │   ├── predict.py      - Predictor class for model loading and prediction.
+    │   └── utils.py        - utility functions
+    │
+    ├── lambda_function.py  - [Main] FastAPI application for AWS Lambda creation and configuration.
+    └── main.py             - [Main] FastAPI application creation with gunicorn server.
+    │
+    │ # ML stuff
     ├── data             - where you persist data locally
     │   ├── interim      - intermediate data that has been transformed.
     │   ├── processed    - the final, canonical data sets for modeling.
     │   └── raw          - the original, immutable data dump.
     │
-    ├── notebooks        - Jupyter notebooks. Naming convention is a number (for ordering),
-    |
-    ├── ml               - modelling source code for use in this project.
-    │   ├── __init__.py  - makes ml a Python module
-    │   ├── pipeline.py  - scripts to orchestrate the whole pipeline
-    │   │
-    │   ├── data         - scripts to download or generate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features     - scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   └── model        - scripts to train models and make predictions
-    │       ├── predict_model.py
-    │       └── train_model.py
+    │
+    ├── notebooks        - Jupyter notebooks. Naming convention is a sprint number (for ordering),
+    │
+    │
+    ml                   - modelling source code for use in this project.
+    ├── __init__.py      - makes ml a Python module
+    ├── eval.py          - evaluation script
+    ├── train.py         - training script
+    │
+    ├── data             - scripts to download or generate data
+    │   └── make_dataset.py
+    │
+    ├── features         - scripts to turn raw data into features for modeling
+    │   └── build_features.py
+    │
+    └── model            - model binaries and inference pipeline scripts
+    │   └── pipeline.py  - orchestrate the whole pipeline
     │
     └── tests            - pytest
+    │
+    │
+    ├── Dockerfile       - The Dockerfile to build the container image.
+    ├── lambda_dockerfile - The Dockerfile to build the container image for AWS Lambda.
+    ├── Makefile         - Makefile for build and deployment commands.
+    ├── requirements.txt - The pip requirements to be installed during the container build.
+    └── template.yaml    - A template that defines the SAM application's AWS resources.
 
 ## GCP
 
@@ -129,5 +142,3 @@ Deploying inference service to AWS Lambda
 ## Add the correct type hinting when completed
 
 `aws cloudformation delete-stack --stack-name <STACK_NAME_ON_CREATION>`
-
-Made by <https://github.com/arthurhenrique/cookiecutter-fastapi/graphs/contributors> with ❤️

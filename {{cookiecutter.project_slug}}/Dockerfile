@@ -10,7 +10,7 @@ RUN pip install --upgrade pip && \
     poetry config virtualenvs.create false
 
 ARG DEV=false
-RUN if [ "$DEV" = "true" ] ; then poetry install --with dev ; else poetry install --only main ; fi
+RUN if [ "$DEV" = "true" ] ; then poetry install --with dev ; else poetry install --only main,aws ; fi
 
 COPY ./app/ ./
 COPY ./ml/model/ ./ml/model/

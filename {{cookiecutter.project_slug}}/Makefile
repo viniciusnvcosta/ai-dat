@@ -126,7 +126,7 @@ deploy: create-ecr-repo ecr-login
 	@echo "Deploying the SAM application..."
 	sam deploy --config-file samconfig.toml --s3-bucket $(S3_BUCKET_NAME) --image-repository $(ECR_URI) --region $(REGION)
 
-pytest:
+test:
 	poetry run pytest tests -vv --show-capture=all
 
 compose: generate_dot_env
