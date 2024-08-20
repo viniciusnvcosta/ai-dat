@@ -1,8 +1,6 @@
-import json
-
 from core.config import settings
 from core.setup import create_application
-from magnum import Magnum
+# from mangum import Mangum
 
 """
     The FastAPI application setup.
@@ -12,9 +10,4 @@ from magnum import Magnum
 
 app = create_application(settings=settings)
 
-magnum_handler = Magnum(app)
-
-
-def lambda_handler(event, context):
-    # Call the Magnum handler with the event and context
-    return magnum_handler(event, context)
+mangum_handler = Mangum(app, lifespan="off")

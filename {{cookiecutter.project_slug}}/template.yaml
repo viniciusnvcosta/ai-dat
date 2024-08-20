@@ -24,7 +24,7 @@ Resources:
         - x86_64
       Environment:
         Variables:
-          FASTAPI_MODULE: "lambda_function.lambda_handler"
+          FASTAPI_MODULE: "lambda_function.mangum_handler"
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: .

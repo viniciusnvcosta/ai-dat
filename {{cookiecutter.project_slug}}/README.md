@@ -1,10 +1,10 @@
-# pickcells-cito-detector-ia
+# {{cookiecutter.project_name}}
 
-Repositório da IA de detecção de citologia no padrão PCP
+{{cookiecutter.project_short_description}}
 
 ## Development Requirements
 
-- Python3.11.0
+- Python3.11
 - Pip
 - Poetry (Python Package Manager)
 
@@ -52,48 +52,62 @@ make install
 Files related to application are in the `app` or `tests` directories.
 Application parts are:
 
+```plaintext
     app
-    |
-    | # Fast-API stuff
-    ├── api                 - web related stuff.
-    │   └── routes          - web routes.
-    ├── core                - application configuration, startup events, logging.
-    ├── models              - pydantic models for this application.
-    ├── services            - logic that is not just crud related.
-    ├── main-aws-lambda.py  - [Optional] FastAPI application for AWS Lambda creation and configuration.
-    └── main.py             - FastAPI application creation and configuration.
-    |
-    | # ML stuff
-    ├── data             - where you persist data locally
-    │   ├── interim      - intermediate data that has been transformed.
-    │   ├── processed    - the final, canonical data sets for modeling.
-    │   └── raw          - the original, immutable data dump.
     │
-    ├── notebooks        - Jupyter notebooks. Naming convention is a number (for ordering),
-    |
-    ├── ml               - modelling source code for use in this project.
-    │   ├── __init__.py  - makes ml a Python module
-    │   ├── train.py  - script to train models
-    │   ├── eval.py  - script to make predictions and evaluate models
+    │ # Fast-API stuff
+    ├── api                   - web related stuff.
+    │   └── routes            - web routes.
+    ├── core                  - application configuration, startup events, logging.
+    ├── models                - pydantic models for this application.
+    ├── services              - logic that is not just crud related.
+    │   ├── __init__.py       - makes services a Python module
+    │   ├── predict.py        - Predictor class for model loading and prediction.
+    │   └── utils.py          - utility functions
+    │
+    ├── lambda_function.py    - [Main] FastAPI application for AWS Lambda creation and configuration.
+    └── main.py               - [Main] FastAPI application creation with gunicorn server.
+    │
+    │ # ML stuff
+    ├── data               - where you persist data locally
+    │   ├── interim        - intermediate data that has been transformed.
+    │   ├── processed      - the final, canonical data sets for modeling.
+    │   └── raw            - the original, immutable data dump.
+    │
+    ├── notebooks          - Jupyter notebooks. Naming convention is a sprint number (for ordering),
+    │
+    ├── ml                 - modelling source code for use in this project.
+    │   ├── __init__.py    - makes ml a Python module
+    │   ├── train.py       - training script
+    │   ├── eval.py        - evaluation script
     │   │
-    │   ├── data         - scripts to download or generate data
+    │   ├── data           - scripts to download or generate data
     │   │   └── make_dataset.py
     │   │
-    │   ├── features     - scripts to turn raw data into features for modeling
+    │   ├── features       - scripts to turn raw data into features for modeling
     │   │   └── build_features.py
     │   │
-    │   └── model        - model binaries and inference pipeline logic
+    │   └── model          - model binaries and inference pipeline scripts
     │       ├── image_processor.py
     │       ├── model_runner.py
     │       └── model_scorer.py
     │
-    └── tests            - pytest
+    └── tests              - pytest
+    │
+    │
+    ├── Dockerfile         - The Dockerfile to build the container image.
+    ├── docker-compose.yml - The Docker Compose file to run the application and its dependencies.
+    ├── lambda_dockerfile  - The Dockerfile to build the container image for AWS Lambda.
+    ├── Makefile           - Makefile for build and deployment commands.
+    ├── template.yaml      - A template that defines the SAM application's AWS resources.
+    └── requirements.txt   - The pip requirements to be installed during the container build.
+```
 
 ## GCP
 
 Deploying inference service to Cloud Run
 
-### Authenticate
+### Authenticate to GCP
 
 1. Install `gcloud` cli
 2. `gcloud auth login`
@@ -118,7 +132,7 @@ Deploying inference service to Cloud Run
 
 Deploying inference service to AWS Lambda
 
-### Authenticate
+### Authenticate to AWS
 
 1. Install `awscli` and `sam-cli`
 2. `aws configure`
