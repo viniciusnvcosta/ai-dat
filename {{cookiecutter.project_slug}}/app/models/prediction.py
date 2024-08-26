@@ -1,5 +1,10 @@
+import io
+from typing import Any, Dict, List
+from urllib.request import urlopen
+from fastapi import HTTPException
+
+from PIL import Image
 from pydantic import BaseModel
-from typing import List
 
 
 class DetectionResult(BaseModel):
@@ -14,9 +19,12 @@ class ClassificationResult(BaseModel):
 
 
 class MachineLearningResponse(BaseModel):
-    result: List[
-        DetectionResult
-    ]  # Change to List[ClassificationResult] if classification task or List[NewTask] for a new task
+    status_code: int
+    # a dictionary derived from ClassificationResult
+    content: Dict[str, Any]
+    # result: Dict[
+    #     DetectionResult
+    # ]  # Change to Dict[ClassificationResult] if classification task or Dict[NewTask] for a new task
 
 
 class HealthResponse(BaseModel):
@@ -24,4 +32,18 @@ class HealthResponse(BaseModel):
 
 
 class MachineLearningDataInput(BaseModel):
-    image_file: str
+    image_url: str
+
+    def get_image(self):
+        """
+        Gets the image from the given URL.
+        """
+        try:
+            with urlopen(self.image_url) as response:
+                image_bytes = response.read()
+            pil_image = Image.open(io.BytesIO(image_bytes))
+            return pil_image
+        except HTTPException as e:
+            # Handle the exception here
+            print(f"Error reading image: {e}")
+            return None

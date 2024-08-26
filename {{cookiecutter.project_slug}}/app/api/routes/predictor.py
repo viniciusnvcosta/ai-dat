@@ -7,6 +7,7 @@ from models.prediction import (
     HealthResponse,
     MachineLearningDataInput,
     MachineLearningResponse,
+    ClassificationResult,
 )
 from PIL import Image
 from services.predict import MachineLearningModelHandlerScore as model
@@ -15,9 +16,17 @@ from services.utils import Utils as utils
 router = APIRouter()  # Creating an APIRouter instance
 
 
-# Function to get predictions using the ML model
-def get_prediction(data_point):
-    return model.predict(data_point, load_wrapper=utils.loader())
+def get_prediction(image_point: Image.Image) -> ClassificationResult:
+    try:
+        predict_result = model.predict(image_point)
+        data = ClassificationResult(
+            # Replace with actual keys and values
+            class_name=predict_result["class_name"],
+            classification_score=predict_result["classification_score"],
+        )
+        return data
+    except ValueError as e:
+        print(f"An error occurred during prediction: {e}")
 
 
 # Endpoint for handling POST requests to '/predict' route
@@ -26,19 +35,23 @@ def get_prediction(data_point):
     response_model=MachineLearningResponse,
     name="predict:get-data",
 )
-async def predict(image_file: UploadFile = File(...)):
-    if not image_file:
-        raise HTTPException(status_code=404, detail="'image_file' argument invalid!")
+async def predict(body: MachineLearningDataInput):
     try:
-        image_data = await image_file.read()
-        PIL_image = Image.open(io.BytesIO(image_data))
-        final_score = get_prediction(PIL_image)
-        return MachineLearningResponse(result=final_score)
+        # if not body:
+        #     raise HTTPException(status_code=400, detail="Invalid request!")
+        if body.image_url == "":
+            return MachineLearningResponse(
+                status_code=400, content={"msg": "image_url is required"}
+            )
+        input_image = body.get_image()
+
+        result = get_prediction(input_image)
+        return MachineLearningResponse(status_code=200, content=result.model_dump())
 
     except Exception as err:  # Handling exceptions
         raise HTTPException(
             status_code=500, detail=f"Exception: {err}"
-        )  # Raising HTTP exception with error details
+        ) from err  # Raising HTTP exception with error details
 
 
 # Endpoint for handling GET requests to '/health' route
@@ -48,24 +61,25 @@ async def predict(image_file: UploadFile = File(...)):
     name="test:get-data",
 )
 async def test():
-    # is_health = False
     try:
-        # Loading an example image from configuration files
-        with open(settings.INPUT_EXAMPLE, "rb") as image_file:
-            image_data = image_file.read()  # Reading image file data
-        # Opening image with PIL
-        PIL_image = Image.open(io.BytesIO(image_data))
-        # Getting prediction to verify if the prediction system is functioning correctly
-        test_prediction = get_prediction(PIL_image)
-        # is_health = True  # If no exceptions, system is considered healthy
-        return MachineLearningResponse(
-            result=test_prediction
-        )  # Returning health status
+        # Loading an example image request from a test file
+        with open(settings.INPUT_EXAMPLE, "r", encoding="utf-8") as file:
+            request_data = json.load(file)
+        body = MachineLearningDataInput(**request_data)
+
+        if not body.get_image():
+            raise ValueError("Failed to read image")
+
+        # If everything is successful, mark the service as healthy
+        result = {
+            "is_healthy": True,
+        }
+        return HealthResponse(result=result)
 
     except Exception as err:  # Handling exceptions
         raise HTTPException(
             status_code=404, detail=f"Unhealthy: {err}"
-        )  # Raising HTTP exception for unhealthy status
+        ) from err  # Raising HTTP exception for unhealthy status
 
 
 # @router.get(

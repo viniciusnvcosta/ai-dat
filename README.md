@@ -5,6 +5,7 @@
 A quality template to deploy containerized AI projects. 🏗️
 
 ## Important
+
 This project is thoroughly based on `arturhenrique`'s [cookiecutter-fastapi](https://github.com/arthurhenrique/cookiecutter-fastapi) and `mateuscardosogs`'s [athena-boilerplate](https://github.com/mateuscardosogs/athena-boilerplate), best regards for their contributions.
 
 ## Cookiecutter
@@ -17,10 +18,10 @@ Cookiecutter is a CLI tool (Command Line Interface) to create an application boi
 pip install cookiecutter
 ```
 
-### How can I generate a `ai-dat` project?
+### How can I generate a `ai-dat` computer vision project?
 
 ```bash
-cookiecutter gh:viniciusnvcosta/ai-dat
+cookiecutter gh:viniciusnvcosta/ai-dat --checkout vision
 ```
 
 <!-- ### Hands On -->

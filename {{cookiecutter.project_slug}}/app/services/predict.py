@@ -1,5 +1,4 @@
 import os
-from fastapi import HTTPException
 import cv2
 import numpy as np
 import tensorflow as tf
@@ -7,6 +6,7 @@ from core.config import settings
 from core.errors import ModelLoadException
 from loguru import logger
 from ultralytics import YOLO
+from PIL import Image
 
 # * uncomment the following line to import the preprocessing class
 # from ml.model.image_processor import ImageProcessor as transformer
@@ -15,14 +15,48 @@ from ml.model.result_runner import YoloDetectorResult
 
 
 class MachineLearningModelHandlerScore(object):
+    """
+    This class handles the prediction of machine learning models.
+    Attributes:
+        model: The loaded machine learning model.
+    Methods:
+        predict(image_input: Image.Image, load_wrapper=None) -> Any:
+            Predicts the output based on the given image input.
+            Args:
+                image_input: The input image to be predicted.
+                load_wrapper: The wrapper function to load the model (optional).
+            Returns:
+                The final prediction score.
+        get_model(load_wrapper) -> Any:
+            Retrieves the loaded machine learning model.
+            Args:
+                load_wrapper: The wrapper function to load the model.
+            Returns:
+                The loaded machine learning model.
+        load(load_wrapper) -> Any:
+            Loads the machine learning model.
+            Args:
+                load_wrapper: The wrapper function to load the model.
+            Returns:
+                The loaded machine learning model.
+        pipeline(input, load_wrapper, model) -> Any:
+            Runs the inference and prediction logic for the AI model.
+            Args:
+                input: The input image for prediction.
+                load_wrapper: The wrapper function to load the model.
+                model: The loaded machine learning model.
+            Returns:
+                The final prediction score.
+    """
+
     model = None
 
     @classmethod
-    def predict(cls, input, load_wrapper=None):
+    def predict(cls, image_input: Image.Image, load_wrapper=None):
         # Import model
         model = cls.get_model(load_wrapper)
         # Perform prediction
-        final_score = cls.pipeline(input, load_wrapper, model)
+        final_score = cls.pipeline(image_input, load_wrapper, model)
         print(final_score)
         return final_score
 
@@ -74,7 +108,7 @@ class MachineLearningModelHandlerScore(object):
             except Exception as err:  # Handling exceptions
                 raise ValueError(
                     f"Unsupported model format: YOLO model not supported, use .tf models for classification tasks.{err}"
-                )
+                ) from err
 
         elif load_wrapper == tf.keras.models.load_model:
             try:
@@ -83,6 +117,6 @@ class MachineLearningModelHandlerScore(object):
             except Exception as err:
                 raise ValueError(
                     f"Unsupported model format: Tensorflow model not supported, use .pt models for detection tasks. {err}"
-                )
+                ) from err
 
         return final_score
