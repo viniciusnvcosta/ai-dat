@@ -43,7 +43,7 @@ help:echo data
 
 install: generate_dot_env
 	pip install --upgrade pip
-	poetry install --with dev --sync
+	poetry install --with dev --sync || poetry update --with dev --sync
 
 run:
 	PYTHONPATH=app/ poetry run uvicorn main:app --reload --host 0.0.0.0 --port 8080
