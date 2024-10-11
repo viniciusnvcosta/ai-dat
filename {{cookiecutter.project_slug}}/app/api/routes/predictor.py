@@ -1,32 +1,63 @@
 import io
 import json
+from typing import Any, Dict, List
 
 from core.config import settings
 from fastapi import APIRouter, File, HTTPException, UploadFile
+from loguru import logger
 from models.prediction import (
+    # ClassificationResult,
+    DetectionResult,
     HealthResponse,
     MachineLearningDataInput,
     MachineLearningResponse,
-    ClassificationResult,
 )
 from PIL import Image
 from services.predict import MachineLearningModelHandlerScore as model
 from services.utils import Utils as utils
+from ultralytics import YOLO
 
 router = APIRouter()  # Creating an APIRouter instance
 
 
-def get_prediction(image_point: Image.Image) -> ClassificationResult:
+def get_prediction(image_point: Image.Image) -> List[DetectionResult]:
+    """
+    Calls the model's prediction pipeline on the input image and returns the results.
+    Args:
+        image_point (Image.Image): The input image for which predictions are to be made.
+    Returns:
+        List[DetectionResult]: A list of detection results, each containing class name, detection score, and bounding box.
+
+        This may as well be a list of ClassificationResult objects if the model is a classifier.
+    Raises:
+        HTTPException: If the prediction process fails, an HTTPException is raised with a status code of 400 and an error message.
+    """
+
     try:
-        predict_result = model.predict(image_point)
-        data = ClassificationResult(
-            # Replace with actual keys and values
-            class_name=predict_result["class_name"],
-            classification_score=predict_result["classification_score"],
+        predict_results: List[Dict[str, Any]] = model.predict(
+            image_point,
+            # * Change the function call arguments to match the model's prediction
+            load_wrapper=YOLO,
+            method="inference",
+            model_type="detector",
         )
-        return data
+
+        # * Change the following code to match the model's task
+        detection_results = [
+            DetectionResult(
+                # Replace with actual keys and values
+                class_name=ix["class_name"],
+                detection_score=ix["detection_score"],
+                bbox=ix["bbox"],
+            )
+            for ix in predict_results
+        ]
+
+        return detection_results
+
     except ValueError as e:
-        print(f"An error occurred during prediction: {e}")
+        logger.error(f"Prediction error: {e}")
+        raise HTTPException(status_code=400, detail=f"Prediction failed: {e}")
 
 
 # Endpoint for handling POST requests to '/predict' route
@@ -39,19 +70,24 @@ async def predict(body: MachineLearningDataInput):
     try:
         # if not body:
         #     raise HTTPException(status_code=400, detail="Invalid request!")
-        if body.image_url == "":
+        if body.image == "":
             return MachineLearningResponse(
-                status_code=400, content={"msg": "image_url is required"}
+                status_code=400, result={"msg": "image is required"}
             )
-        input_image = body.get_image()
+        input_image = body.get_image_base64()
 
         result = get_prediction(input_image)
-        return MachineLearningResponse(status_code=200, content=result.model_dump())
+        logger.debug(f"1st result check: {result[0].model_dump()}")
+        logger.info("Prediction completed")
+        return MachineLearningResponse(status_code=200, result=result)
 
     except Exception as err:  # Handling exceptions
-        raise HTTPException(
-            status_code=500, detail=f"Exception: {err}"
-        ) from err  # Raising HTTP exception with error details
+        if isinstance(err, HTTPException):
+            raise err
+        logger.exception("An error occurred during prediction.")
+        raise HTTPException(status_code=500, detail=f"Exception: {err}").with_traceback(
+            err.__traceback__
+        )  # Raising HTTP exception with error details and traceback
 
 
 # Endpoint for handling GET requests to '/health' route

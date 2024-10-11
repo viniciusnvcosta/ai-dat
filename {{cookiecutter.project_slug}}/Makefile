@@ -56,7 +56,7 @@ sync:
 test:
 	poetry run pytest tests -vv --show-capture=all
 
-compose: generate_dot_env
+deploy: generate_dot_env
 	docker-compose build
 	docker-compose up -d
 

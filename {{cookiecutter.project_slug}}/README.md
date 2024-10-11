@@ -7,17 +7,39 @@
 - Python3.11
 - Pip
 - Poetry (Python Package Manager)
+- FastAPI
+- Pydantic v2
+- Pydantic Settings v2
 
 ### M.L Model Environment
 
 ```sh
 MODEL_PATH=./ml/model/
-MODEL_NAME=model.pkl
+MODEL_NAME=model.pt
 ```
 
 ### Update `/predict`
 
-To update your machine learning model, add your `load` and `method` [change here](app/api/routes/predictor.py#L19) at `predictor.py`
+To update your machine learning model, match your model's `load wrapper` for binaries (e.g. [load](https://joblib.readthedocs.io/en/latest/generated/joblib.load.html) from joblib), `method` (e.g. [predict](https://keras.io/api/models/model_training_apis/#predict-method) from keras) dependending on what ML framework is used and `model_type` (_detector_ or _classifier_) at `predictor.py` pipeline function `get_prediction()` [here](app/api/routes/predictor.py#L23).
+
+These parameters are needed to call the correct `runner` class for the model.
+
+```python
+runner_map = {
+    YOLO: {
+        "detector": YoloDetector,
+        "classifier": YoloClassifier,
+    },
+    tf.keras.models.load_model: {
+        "classifier": TensorflowClassifier,
+    },
+    # Add future models here
+}
+```
+
+#### Note
+
+> The custom `runner` classes are model-specific handlers for loading and running the models. The featured handlers are mapped [here](app/services/predict.py#L107) at `predict.py` on the static method `get_runner()`.
 
 ## Installation
 
@@ -27,11 +49,11 @@ source venv/bin/activate
 make install
 ```
 
-## Runnning Localhost
+## Running on Localhost
 
 `make run`
 
-## Deploy app
+## Build app for deployment
 
 `make deploy`
 
@@ -68,13 +90,14 @@ Application parts are:
     ├── lambda_function.py    - [Main] FastAPI application for AWS Lambda creation and configuration.
     └── main.py               - [Main] FastAPI application creation with gunicorn server.
     │
+    │
     │ # ML stuff
     ├── data               - where you persist data locally
     │   ├── interim        - intermediate data that has been transformed.
     │   ├── processed      - the final, canonical data sets for modeling.
     │   └── raw            - the original, immutable data dump.
     │
-    ├── notebooks          - Jupyter notebooks. Naming convention is a sprint number (for ordering),
+    ├── notebooks          - Jupyter notebooks. Naming convention is a sprint number (for ordering).
     │
     ├── ml                 - modelling source code for use in this project.
     │   ├── __init__.py    - makes ml a Python module
@@ -90,10 +113,10 @@ Application parts are:
     │   └── model          - model binaries and inference pipeline scripts
     │       ├── image_processor.py
     │       ├── model_runner.py
-    │       └── model_scorer.py
+    │       └── result_runner.py
+    │
     │
     └── tests              - pytest
-    │
     │
     ├── Dockerfile         - The Dockerfile to build the container image.
     ├── docker-compose.yml - The Docker Compose file to run the application and its dependencies.
