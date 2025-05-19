@@ -7,25 +7,25 @@ ifneq (,$(wildcard ./.env))
 endif
 
 # Ensure mandatory environment variables are set
-ifndef REGION
-$(error REGION is not set in .env)
-endif
+# ifndef REGION
+# $(error REGION is not set in .env)
+# endif
 
-ifndef ECR_REPO_NAME
-$(error ECR_REPO_NAME is not set in .env)
-endif
+# ifndef ECR_REPO_NAME
+# $(error ECR_REPO_NAME is not set in .env)
+# endif
 
-ifndef IMAGE_TAG
-$(error IMAGE_TAG is not set in .env)
-endif
+# ifndef IMAGE_TAG
+# $(error IMAGE_TAG is not set in .env)
+# endif
 
-ifndef STACK_NAME
-$(error STACK_NAME is not set in .env)
-endif
+# ifndef STACK_NAME
+# $(error STACK_NAME is not set in .env)
+# endif
 
-ifndef S3_BUCKET_NAME
-$(error S3_BUCKET_NAME is not set in .env)
-endif
+# ifndef S3_BUCKET_NAME
+# $(error S3_BUCKET_NAME is not set in .env)
+# endif
 
 # Variables definitions
 # -----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ install: generate_dot_env
 	poetry install --with dev --sync
 
 run:
-	PYTHONPATH=app/ poetry run uvicorn lambda_function:app --reload --host 0.0.0.0 --port 8080
+	PYTHONPATH=app/ poetry run uvicorn main:app --reload --host 0.0.0.0 --port 8080
 
 # Build the SAM application
 .PHONY: build
@@ -140,6 +140,9 @@ generate_dot_env:
 	@if [[ ! -e .env ]]; then \
 		cp .env.example .env; \
 	fi
+
+export_requirements:
+	poetry export --without-hashes --without dev -f requirements.txt -o requirements.txt
 
 # Clean up
 .PHONY: clean
